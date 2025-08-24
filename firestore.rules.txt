@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return request.auth.token.isAdmin == true; }
+    function isOwner(ownerId) { return isSignedIn() && request.auth.uid == ownerId; }
+
+    match /recipes_public/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && request.resource.data.authorId == request.auth.uid);
+    }
+
+    match /reports/{id} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
