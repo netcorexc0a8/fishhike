@@ -7,10 +7,18 @@ import 'src/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  bool firebaseInitialized = false;
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  } catch (_) {}
-  runApp(const ProviderScope(child: FishHikeApp()));
+    firebaseInitialized = true;
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization failed: $e');
+    if (e is UnimplementedError) {
+      print('Firebase options not configured. Running in offline mode.');
+    }
+  }
+  runApp(ProviderScope(child: FishHikeApp(firebaseInitialized: firebaseInitialized)));
 }
 
 class FishHikeApp extends StatelessWidget {

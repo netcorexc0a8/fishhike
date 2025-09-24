@@ -1,8 +1,10 @@
 class ChecklistItem {
   final String id;
   final String title;
-  bool done;
+  final bool done;
   ChecklistItem({required this.id, required this.title, this.done = false});
+
+  ChecklistItem copyWith({bool? done}) => ChecklistItem(id: id, title: title, done: done ?? this.done);
 
   Map<String, dynamic> toJson() => {'id': id, 'title': title, 'done': done};
   factory ChecklistItem.fromJson(Map<String, dynamic> j) =>
@@ -14,6 +16,8 @@ class ChecklistCategory {
   final String title;
   final List<ChecklistItem> items;
   ChecklistCategory({required this.id, required this.title, required this.items});
+
+  ChecklistCategory copyWith({List<ChecklistItem>? items}) => ChecklistCategory(id: id, title: title, items: items ?? this.items);
 
   Map<String, dynamic> toJson() => {
         'id': id,

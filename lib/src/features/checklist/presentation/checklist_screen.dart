@@ -27,9 +27,16 @@ class ChecklistScreen extends ConsumerWidget {
                   title: Text(it.title),
                   value: it.done,
                   onChanged: (v) async {
-                    it.done = v ?? false;
-                    await ref.read(_repoProvider).upsert(cat);
-                    ref.invalidate(checklistProvider);
+                    final newDone = v ?? false;
+                    final itemIndex = cat.items.indexWhere((item) => item.id == it.id);
+                    if (itemIndex >= 0) {
+                      final newItems = List<ChecklistItem>.from(cat.items);
+                      newItems[itemIndex] = it.copyWith(done: newDone);
+                      final newCat = cat.copyWith(items: newItems);
+                      print('Changed ${it.title} to $newDone');
+                      await ref.read(_repoProvider).upsert(newCat);
+                      ref.invalidate(checklistProvider);
+                    }
                   },
                 );
               }).toList(),

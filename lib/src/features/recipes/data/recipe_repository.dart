@@ -37,16 +37,20 @@ class RecipeRepository implements Repository<Recipe> {
     if (raw == null) {
       await _local.saveJson(_kKey, {'items': _defaults.map((e)=>e.toJson()).toList()});
       local = _defaults;
+      print('Loaded default recipes');
     } else {
       final list = (raw['items'] as List<dynamic>? ?? []);
       local = list.map((e)=>Recipe.fromJson(Map<String,dynamic>.from(e))).toList();
+      print('Loaded ${local.length} local recipes');
     }
     try {
       final snap = await FirebaseFirestore.instance.collection('recipes_public').orderBy('createdAt', descending: true).get();
       final online = snap.docs.map((d)=>Recipe.fromJson({...d.data(), 'id': d.id})).toList();
       await _local.saveJson(_kKey, {'items': online.map((e)=>e.toJson()).toList()});
+      print('Fetched ${online.length} online recipes');
       return online;
-    } catch (_) {
+    } catch (e) {
+      print('Failed to fetch online recipes: $e');
       return local;
     }
   }

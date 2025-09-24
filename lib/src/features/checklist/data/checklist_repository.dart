@@ -79,8 +79,10 @@ class ChecklistRepository implements Repository<ChecklistCategory> {
     final idx = all.indexWhere((e) => e.id == item.id);
     if (idx >= 0) {
       all[idx] = item;
+      print('Updated checklist category: ${item.title}');
     } else {
       all.add(item);
+      print('Added new checklist category: ${item.title}');
     }
     await _local.saveJson(_kKey, {'items': all.map((e) => e.toJson()).toList()});
   }
