@@ -20,9 +20,16 @@ class RecipeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AsyncValue<bool>>(isAdminProvider, (_, state) {
+      if (state.hasError && !state.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось проверить статус администратора.')),
+        );
+      }
+    });
     final state = ref.watch(recipeProvider);
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    final isAdmin = ref.watch(isAdminProvider).maybeWhen(data: (v)=>v, orElse: ()=>false);
+    final isAdmin = ref.watch(isAdminProvider).maybeWhen(data: (v) => v, orElse: () => false);
     return Scaffold(
       appBar: AppBar(title: const Text('Походная кухня')),
       body: state.when(
