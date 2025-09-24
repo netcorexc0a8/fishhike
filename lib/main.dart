@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'src/core/router/app_router.dart';
 import 'src/firebase_options.dart';
 
@@ -8,7 +10,7 @@ void main() async {
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (_) {}
-  runApp(const FishHikeApp());
+  runApp(const ProviderScope(child: FishHikeApp()));
 }
 
 class FishHikeApp extends StatelessWidget {
@@ -20,6 +22,14 @@ class FishHikeApp extends StatelessWidget {
       title: 'FishHike',
       theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
       routerConfig: appRouter,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ru'),
+      ],
     );
   }
 }

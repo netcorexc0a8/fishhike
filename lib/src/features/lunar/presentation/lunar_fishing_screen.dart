@@ -64,7 +64,7 @@ class _LunarFishingScreenState extends State<LunarFishingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateFormat('dd MMMM yyyy', 'ru').format(DateTime.now());
+    final today = DateFormat.yMMMMd().format(DateTime.now());
     return Scaffold(
       appBar: AppBar(title: const Text('Фазы луны и прогноз клёва')),
       body: Padding(

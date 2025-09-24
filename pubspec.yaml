@@ -19,6 +19,8 @@ dependencies:
   cloud_firestore: ^5.4.4
   # hive-like placeholder for LocalStore (implement simple file-backed json)
   path_provider: ^2.1.4
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
