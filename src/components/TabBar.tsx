@@ -8,12 +8,19 @@ const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/places', label: 'Места', icon: 'pin' },
 ];
 
-export function TabBar() {
+/** spotlight — индекс вкладки, подсвеченной в обучении; undefined — обучение не идёт. */
+export function TabBar({ spotlight }: { spotlight?: number | null }) {
+  const touring = spotlight !== undefined;
   return (
-    <nav className="tabbar" aria-label="Разделы">
+    <nav className={'tabbar' + (touring ? ' touring' : '')} aria-label="Разделы" inert={touring || undefined}>
       <div className="tabbar-inner">
-        {TABS.map((t) => (
-          <NavLink key={t.to} to={t.to} end={t.end} className={({ isActive }) => 'tab' + (isActive ? ' active' : '')}>
+        {TABS.map((t, i) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            end={t.end}
+            className={({ isActive }) => 'tab' + (isActive ? ' active' : '') + (touring && spotlight === i ? ' spot' : '')}
+          >
             <Icon name={t.icon} size={22} />
             {t.label}
           </NavLink>

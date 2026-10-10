@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { TabBar } from './components/TabBar';
+import { Onboarding } from './components/Onboarding';
 import { ForecastScreen } from './screens/ForecastScreen';
 import { ChecklistsScreen } from './screens/ChecklistsScreen';
 import { ChecklistDetailScreen } from './screens/ChecklistDetailScreen';
@@ -10,9 +12,12 @@ import { PlacesScreen } from './screens/PlacesScreen';
 
 // HashRouter — чтобы прямые ссылки работали на GitHub Pages без серверных перенаправлений.
 export function App() {
+  // undefined — обучение не идёт; null — идёт без подсветки; число — подсвеченная вкладка.
+  const [spot, setSpot] = useState<number | null | undefined>(undefined);
+  const touring = spot !== undefined;
   return (
     <HashRouter>
-      <div className="app">
+      <div className="app" inert={touring || undefined} aria-hidden={touring || undefined}>
         <Routes>
           <Route path="/" element={<ForecastScreen />} />
           <Route path="/checklists" element={<ChecklistsScreen />} />
@@ -24,8 +29,9 @@ export function App() {
           <Route path="/places" element={<PlacesScreen />} />
           <Route path="*" element={<ForecastScreen />} />
         </Routes>
-        <TabBar />
       </div>
+      <TabBar spotlight={spot} />
+      <Onboarding onStepTab={(t) => setSpot(t)} />
     </HashRouter>
   );
 }
