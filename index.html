@@ -7,7 +7,10 @@
     <meta name="theme-color" content="#EEF2EF" media="(prefers-color-scheme: light)" />
     <meta name="description" content="FishHike — прогноз клёва, сборы, походные рецепты и места" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- Через src/assets: Vite добавляет хэш к имени, и при смене иконки меняется адрес.
+         Иначе iOS и service worker отдают закэшированную старую картинку. -->
+    <link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="FishHike" />
     <title>FishHike</title>
     <script>
       // Применяем выбранную тему до отрисовки, чтобы не мигала другая (см. src/lib/theme.ts).
