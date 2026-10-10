@@ -5,6 +5,7 @@ import { db, setSetting } from '../db';
 import { addCurrentLocation, addPlace, geoErrorText, useCurrentPlace, useOnline } from '../hooks';
 import { searchPlaces, type GeoResult } from '../lib/weather';
 import { Icon } from '../components/Icon';
+import { ONBOARDING_EVENT } from '../components/Onboarding';
 
 export function PlacesScreen() {
   const places = useLiveQuery(() => db.places.orderBy('createdAt').reverse().toArray(), []);
@@ -130,6 +131,10 @@ export function PlacesScreen() {
         ))}
         {places?.length === 0 && <div className="empty">Пока нет мест. Добавьте текущую позицию или найдите водоём.</div>}
       </div>
+
+      <button className="btn btn-block" style={{ marginTop: 8 }} onClick={() => window.dispatchEvent(new Event(ONBOARDING_EVENT))}>
+        Показать подсказки по разделам
+      </button>
     </main>
   );
 }
