@@ -13,8 +13,14 @@ export interface HourWeather {
   cloud: number;
 }
 
+/** Сколько дней прогноз считается надёжным; дальше — ориентировочно. */
+export const RELIABLE_DAYS = 7;
+export const FORECAST_DAYS = 16;
+
 export interface DayForecast {
   date: Date; // полночь дня
+  /** День дальше RELIABLE_DAYS — точность погоды заметно ниже. */
+  approx: boolean;
   sun: DaySun;
   hours: HourWeather[];
   scores: HourScore[];
@@ -51,7 +57,7 @@ export function forecastUrl(lat: number, lon: number): string {
     daily: 'sunrise,sunset',
     wind_speed_unit: 'ms',
     timezone: 'auto',
-    forecast_days: '7',
+    forecast_days: String(FORECAST_DAYS),
   });
   return `https://api.open-meteo.com/v1/forecast?${p}`;
 }
@@ -94,7 +100,7 @@ export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): F
     // Индекс дня — между средним и пиком: важно, есть ли хорошие окна.
     const peak = Math.max(0, ...pool.map((s) => s.score));
     const dayScore = Math.round(((avg + peak) / 2) * 10) / 10;
-    return { date, sun, hours: dayHours, scores, windows: bestWindows(light, 7), dayScore };
+    return { date, approx: di >= RELIABLE_DAYS, sun, hours: dayHours, scores, windows: bestWindows(light, 7), dayScore };
   });
 
   return { fetchedAt, days };

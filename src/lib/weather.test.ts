@@ -37,6 +37,19 @@ describe('прогноз', () => {
     expect(f.days[0].dayScore).toBeGreaterThan(0);
   });
 
+  it('дни дальше недели помечаются как ориентировочные', () => {
+    const raw = fakeResponse();
+    const extra = 9;
+    for (let d = 0; d < extra; d++) {
+      const day = `2026-10-${12 + d}`;
+      raw.daily.time.push(day);
+      raw.daily.sunrise.push(`${day}T07:10`);
+      raw.daily.sunset.push(`${day}T18:00`);
+    }
+    const f = buildForecast(raw, 0);
+    expect(f.days.map((d) => d.approx)).toEqual([...Array(7).fill(false), ...Array(4).fill(true)]);
+  });
+
   it('штормовой ветер и падение давления снижают индекс', () => {
     const t = new Date('2026-10-10T12:00');
     const calm = scoreHour({ time: t, pressure: 1018, pressure3hAgo: 1018, wind: 3, precipitation: 0 }, null);
