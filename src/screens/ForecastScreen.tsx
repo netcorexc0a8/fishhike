@@ -109,13 +109,19 @@ export function ForecastScreen() {
             {day ? headline(day, isToday) : loading ? 'Считаем клёв…' : 'Нет прогноза'}
           </h1>
         </div>
-        <Moon info={moon} size={56} />
+        <Moon info={moon} size={68} />
       </div>
 
       {forecast && (
         <div className="chips" role="group" aria-label="День прогноза">
           {forecast.days.map((d, i) => (
-            <button key={d.date.getTime()} className="chip" aria-pressed={i === dayIdx} onClick={() => setDayIdx(i)}>
+            <button
+              key={d.date.getTime()}
+              className={'chip' + (d.approx ? ' approx' : '')}
+              aria-pressed={i === dayIdx}
+              aria-label={d.approx ? `${fmtWeekday(d.date)} ${d.date.getDate()}, ориентировочно` : undefined}
+              onClick={() => setDayIdx(i)}
+            >
               {i === 0 ? 'сегодня' : fmtWeekday(d.date)}
               <b>{d.date.getDate()}</b>
             </button>
@@ -124,7 +130,12 @@ export function ForecastScreen() {
       )}
 
       {day ? (
-        <section className="card" aria-label="Индекс клёва">
+        <section className={'card' + (day.approx ? ' approx' : '')} aria-label="Индекс клёва">
+          {day.approx && (
+            <div className="approx-badge">
+              <Icon name="clock" size={14} /> Ориентировочно — погода дальше недели неточна
+            </div>
+          )}
           <div className="spread">
             <div>
               <div className="label">Индекс клёва</div>
