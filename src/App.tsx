@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { TabBar } from './components/TabBar';
 import { Onboarding } from './components/Onboarding';
+import { InstallScreen } from './components/InstallScreen';
 import { ForecastScreen } from './screens/ForecastScreen';
 import { ChecklistsScreen } from './screens/ChecklistsScreen';
 import { ChecklistDetailScreen } from './screens/ChecklistDetailScreen';
@@ -14,10 +15,12 @@ import { PlacesScreen } from './screens/PlacesScreen';
 export function App() {
   // undefined — обучение не идёт; null — идёт без подсветки; число — подсвеченная вкладка.
   const [spot, setSpot] = useState<number | null | undefined>(undefined);
+  const [installing, setInstalling] = useState(true);
   const touring = spot !== undefined;
+  const blocked = touring || installing;
   return (
     <HashRouter>
-      <div className="app" inert={touring || undefined} aria-hidden={touring || undefined}>
+      <div className="app" inert={blocked || undefined} aria-hidden={blocked || undefined}>
         <Routes>
           <Route path="/" element={<ForecastScreen />} />
           <Route path="/checklists" element={<ChecklistsScreen />} />
@@ -31,7 +34,8 @@ export function App() {
         </Routes>
       </div>
       <TabBar spotlight={spot} />
-      <Onboarding onStepTab={(t) => setSpot(t)} />
+      <Onboarding onStepTab={(t) => setSpot(t)} waiting={installing} />
+      <InstallScreen onVisibleChange={setInstalling} />
     </HashRouter>
   );
 }
