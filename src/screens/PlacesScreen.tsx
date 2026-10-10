@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon';
 import { ONBOARDING_EVENT } from '../components/Onboarding';
 import { INSTALL_EVENT } from '../components/InstallScreen';
 import { isStandalone } from '../lib/install';
+import { ThemePicker } from '../components/ThemeControls';
 
 export function PlacesScreen() {
   const places = useLiveQuery(() => db.places.orderBy('createdAt').reverse().toArray(), []);
@@ -134,6 +135,8 @@ export function PlacesScreen() {
         {places?.length === 0 && <div className="empty">Пока нет мест. Добавьте текущую позицию или найдите водоём.</div>}
       </div>
 
+      <div className="section-title">Настройки</div>
+      <ThemePicker />
       <button className="btn btn-block" style={{ marginTop: 8 }} onClick={() => window.dispatchEvent(new Event(ONBOARDING_EVENT))}>
         Показать подсказки по разделам
       </button>
