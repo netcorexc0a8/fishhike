@@ -1,4 +1,5 @@
 import { bestWindows, scoreHour, type BiteWindow, type DaySun, type HourScore } from './bite';
+import { solunarEvents, type SolunarEvent } from './astro';
 
 // Open-Meteo: бесплатно, без ключа. Время приходит в часовом поясе места (timezone=auto)
 // без смещения — парсим его как «местное», чтобы часы на экране совпадали с часами на водоёме.
@@ -21,6 +22,7 @@ export interface DayForecast {
   date: Date; // полночь дня
   /** День дальше RELIABLE_DAYS — точность погоды заметно ниже. */
   approx: boolean;
+  moon?: MoonDay;
   sun: DaySun;
   hours: HourWeather[];
   scores: HourScore[];
@@ -34,7 +36,17 @@ export interface Forecast {
   days: DayForecast[];
 }
 
+export interface MoonDay {
+  /** Восход, заход и верхняя кульминация Луны в этот день по местному времени водоёма (null — нет события). */
+  rise: Date | null;
+  set: Date | null;
+  transit: Date | null;
+}
+
 interface OpenMeteoResponse {
+  latitude?: number;
+  longitude?: number;
+  utc_offset_seconds?: number;
   hourly: {
     time: string[];
     temperature_2m: number[];
@@ -48,6 +60,20 @@ interface OpenMeteoResponse {
 }
 
 const parseLocal = (s: string) => new Date(s.length === 10 ? s + 'T00:00' : s);
+
+/** «Наивное» местное время водоёма → абсолютное UTC (мс). */
+function localToUtcMs(s: string, offsetSec: number): number {
+  const [d, t = '00:00'] = s.split('T');
+  const [y, m, day] = d.split('-').map(Number);
+  const [hh, mm] = t.split(':').map(Number);
+  return Date.UTC(y, m - 1, day, hh, mm) - offsetSec * 1000;
+}
+
+/** Абсолютный момент → Date с тем же «настенным» временем, что на водоёме (как у часов прогноза). */
+function utcToLocal(at: Date, offsetSec: number): Date {
+  const x = new Date(at.getTime() + offsetSec * 1000);
+  return new Date(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate(), x.getUTCHours(), x.getUTCMinutes());
+}
 
 export function forecastUrl(lat: number, lon: number): string {
   const p = new URLSearchParams({
@@ -64,6 +90,13 @@ export function forecastUrl(lat: number, lon: number): string {
 
 export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): Forecast {
   const h = raw.hourly;
+  const offset = raw.utc_offset_seconds ?? 0;
+  const hasCoords = typeof raw.latitude === 'number' && typeof raw.longitude === 'number';
+  const utcMs = h.time.map((t) => localToUtcMs(t, offset));
+  let events: SolunarEvent[] | undefined;
+  if (hasCoords && utcMs.length) {
+    events = solunarEvents(raw.latitude!, raw.longitude!, new Date(utcMs[0]), new Date(utcMs[utcMs.length - 1]));
+  }
   const hours: HourWeather[] = h.time.map((t, i) => ({
     time: parseLocal(t),
     temperature: h.temperature_2m[i],
@@ -87,8 +120,10 @@ export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): F
           pressure3hAgo: idx >= 3 ? hours[idx - 3].pressure : null,
           wind: x.wind,
           precipitation: x.precipitation,
+          utcMs: utcMs[idx],
         },
         sun,
+        events,
       );
     });
     const light = scores.filter(
@@ -100,7 +135,16 @@ export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): F
     // Индекс дня — между средним и пиком: важно, есть ли хорошие окна.
     const peak = Math.max(0, ...pool.map((s) => s.score));
     const dayScore = Math.round(((avg + peak) / 2) * 10) / 10;
-    return { date, approx: di >= RELIABLE_DAYS, sun, hours: dayHours, scores, windows: bestWindows(light, 7), dayScore };
+    let moon: MoonDay | undefined;
+    if (events) {
+      const dayStart = localToUtcMs(d, offset);
+      const inDay = (k: SolunarEvent['kind']) => {
+        const e = events!.find((x) => x.kind === k && x.at.getTime() >= dayStart && x.at.getTime() < dayStart + 86_400_000);
+        return e ? utcToLocal(e.at, offset) : null;
+      };
+      moon = { rise: inDay('rise'), set: inDay('set'), transit: inDay('transit') };
+    }
+    return { date, approx: di >= RELIABLE_DAYS, moon, sun, hours: dayHours, scores, windows: bestWindows(light, 7), dayScore };
   });
 
   return { fetchedAt, days };

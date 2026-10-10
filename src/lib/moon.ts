@@ -1,5 +1,6 @@
-// Фаза Луны по средней длине синодического месяца.
-// Точность ±0,5 суток — достаточно для бытового прогноза клёва.
+import { Body, Illumination, MoonPhase } from 'astronomy-engine';
+
+// Фаза и освещённость Луны — астрономический расчёт (astronomy-engine).
 
 export const SYNODIC_MONTH = 29.530588853; // суток
 const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14); // известное новолуние
@@ -17,6 +18,12 @@ export interface MoonInfo {
 }
 
 export function moonPhase(date: Date): number {
+  // Разность эклиптических долгот Луны и Солнца: 0° — новолуние, 180° — полнолуние.
+  return MoonPhase(date) / 360;
+}
+
+/** Грубая оценка по средней длине месяца — без библиотеки, для сравнения в тестах. */
+export function moonPhaseMean(date: Date): number {
   const days = (date.getTime() - REF_NEW_MOON) / DAY_MS;
   const p = (days / SYNODIC_MONTH) % 1;
   return p < 0 ? p + 1 : p;
@@ -24,7 +31,7 @@ export function moonPhase(date: Date): number {
 
 export function moonInfo(date: Date): MoonInfo {
   const phase = moonPhase(date);
-  const illumination = (1 - Math.cos(2 * Math.PI * phase)) / 2;
+  const illumination = Illumination(Body.Moon, date).phase_fraction;
   return {
     phase,
     illumination,
