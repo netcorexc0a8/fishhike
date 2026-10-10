@@ -6,6 +6,7 @@ import { addCurrentLocation, geoErrorText, useCurrentPlace, useForecast } from '
 import { BiteBars } from '../components/BiteBars';
 import { Icon } from '../components/Icon';
 import { Moon } from '../components/Moon';
+import { ThemeToggle } from '../components/ThemeControls';
 import { moonInfo } from '../lib/moon';
 import { verdict } from '../lib/bite';
 import { windDirName, type DayForecast } from '../lib/weather';
@@ -70,6 +71,7 @@ export function ForecastScreen() {
       <main className="screen">
         <div className="topbar">
           <h2>FishHike</h2>
+          <ThemeToggle />
         </div>
         <div>
           <div className="eyebrow">{fmtFullDate(new Date())}</div>
@@ -97,9 +99,12 @@ export function ForecastScreen() {
           <span>{place?.name ?? '…'}</span>
           <Icon name="chevronDown" size={16} />
         </Link>
-        <button className="icon-btn" onClick={refresh} aria-label="Обновить прогноз" disabled={loading}>
-          <Icon name="refresh" />
-        </button>
+        <div className="topbar-actions">
+          <ThemeToggle />
+          <button className="icon-btn" onClick={refresh} aria-label="Обновить прогноз" disabled={loading}>
+            <Icon name="refresh" />
+          </button>
+        </div>
       </div>
 
       <div className="hero">

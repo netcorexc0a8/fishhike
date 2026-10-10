@@ -9,6 +9,17 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <title>FishHike</title>
+    <script>
+      // Применяем выбранную тему до отрисовки, чтобы не мигала другая (см. src/lib/theme.ts).
+      try {
+        var t = localStorage.getItem('fishhike-theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t;
+          var c = t === 'light' ? '#EEF2EF' : '#0B1220';
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = c; });
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
