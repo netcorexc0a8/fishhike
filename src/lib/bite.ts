@@ -1,4 +1,5 @@
-import { moonInfo, moonTransitHour } from './moon';
+import { moonInfo, moonPhase, moonTransitHour } from './moon';
+import { periodForHour, type SolunarEvent } from './astro';
 
 // Эвристика индекса клёва 0..10 по часам.
 // Учитывает солунарные периоды (кульминации и восход/заход Луны),
@@ -11,6 +12,8 @@ export interface HourInput {
   pressure3hAgo: number | null;
   wind: number; // м/с
   precipitation: number; // мм/ч
+  /** Абсолютное время начала часа (UTC, мс) — для точных солунарных периодов. */
+  utcMs?: number;
 }
 
 export interface DaySun {
@@ -31,7 +34,8 @@ function circDist(a: number, b: number): number {
   return d > 12 ? 24 - d : d;
 }
 
-export function solunarPeriod(time: Date): 'major' | 'minor' | null {
+/** Запасной расчёт без координат: кульминация оценивается по фазе (точность ±1 ч и хуже). */
+export function solunarPeriodApprox(time: Date): 'major' | 'minor' | null {
   const { phase } = moonInfo(time);
   const transit = moonTransitHour(phase);
   const h = hoursOf(time);
@@ -42,9 +46,10 @@ export function solunarPeriod(time: Date): 'major' | 'minor' | null {
   return null;
 }
 
-export function scoreHour(input: HourInput, sun: DaySun | null): HourScore {
+export function scoreHour(input: HourInput, sun: DaySun | null, events?: SolunarEvent[]): HourScore {
   let s = 5;
-  const period = solunarPeriod(input.time);
+  const period =
+    events && input.utcMs !== undefined ? periodForHour(input.utcMs, events) : solunarPeriodApprox(input.time);
   if (period === 'major') s += 2.5;
   if (period === 'minor') s += 1.2;
 
@@ -72,7 +77,7 @@ export function scoreHour(input: HourInput, sun: DaySun | null): HourScore {
   if (p > 0.1 && p <= 1) s += 0.3;
   else if (p > 2) s -= 1;
 
-  const { phase } = moonInfo(input.time);
+  const phase = moonPhase(input.time);
   const nearSyzygy = Math.min(phase, Math.abs(phase - 0.5), 1 - phase) < 0.07;
   if (nearSyzygy) s += 0.5;
 

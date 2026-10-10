@@ -50,6 +50,18 @@ describe('прогноз', () => {
     expect(f.days.map((d) => d.approx)).toEqual([...Array(7).fill(false), ...Array(4).fill(true)]);
   });
 
+  it('с координатами считает восход, заход и кульминацию Луны по местному времени', () => {
+    const raw = { ...fakeResponse(), latitude: 55.75, longitude: 37.62, utc_offset_seconds: 3 * 3600 };
+    const f = buildForecast(raw, 0);
+    const m = f.days[0].moon!;
+    expect(m.transit).toBeInstanceOf(Date);
+    // Новолуние: кульминация около местного полудня (МСК = UTC+3, солнечный полдень ~12:30).
+    const h = m.transit!.getHours() + m.transit!.getMinutes() / 60;
+    expect(h).toBeGreaterThan(11);
+    expect(h).toBeLessThan(15);
+    expect(f.days[0].scores.some((s) => s.period === 'major')).toBe(true);
+  });
+
   it('штормовой ветер и падение давления снижают индекс', () => {
     const t = new Date('2026-10-10T12:00');
     const calm = scoreHour({ time: t, pressure: 1018, pressure3hAgo: 1018, wind: 3, precipitation: 0 }, null);

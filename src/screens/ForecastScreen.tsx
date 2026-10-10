@@ -10,7 +10,7 @@ import { ThemeToggle } from '../components/ThemeControls';
 import { moonInfo } from '../lib/moon';
 import { verdict } from '../lib/bite';
 import { windDirName, type DayForecast } from '../lib/weather';
-import { ago, fmtFullDate, fmtRange, fmtScore, fmtTemp, fmtWeekday } from '../lib/format';
+import { ago, fmtFullDate, fmtRange, fmtScore, fmtTemp, fmtTime, fmtWeekday } from '../lib/format';
 
 function headline(day: DayForecast, isToday: boolean): string {
   const v = verdict(day.dayScore);
@@ -188,6 +188,13 @@ export function ForecastScreen() {
             <div className="label">Луна</div>
             <div className="factor-value">{moon.name}</div>
             <div className="factor-note">освещена {Math.round(moon.illumination * 100)}%</div>
+            {day.moon && (day.moon.rise || day.moon.set) && (
+              <div className="label" style={{ marginTop: 4 }}>
+                {day.moon.rise && <>восход {fmtTime(day.moon.rise)}</>}
+                {day.moon.rise && day.moon.set && ' · '}
+                {day.moon.set && <>заход {fmtTime(day.moon.set)}</>}
+              </div>
+            )}
           </div>
         </div>
       )}
