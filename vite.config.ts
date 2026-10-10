@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// BASE_PATH задаётся в CI для GitHub Pages (/fishhike/); локально — корень.
+// Базовый путь: по умолчанию корень домена (fishhike.wg3664.ru). Для подкаталога — BASE_PATH=/fishhike/.
 const base = process.env.BASE_PATH ?? '/';
 
 export default defineConfig({

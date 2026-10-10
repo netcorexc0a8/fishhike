@@ -28,7 +28,11 @@ npm run preview    # проверить собранную версию, вкл�
 
 Workflow `.github/workflows/pwa.yml` на каждый PR прогоняет проверку типов, тесты и сборку, а при пуше в `main` публикует приложение на GitHub Pages.
 
-Один раз включите Pages: **Settings → Pages → Source: GitHub Actions**. После этого приложение будет доступно по адресу `https://<владелец>.github.io/fishhike/`.
+Адрес приложения: **https://fishhike.wg3664.ru**. Сборка рассчитана на корень домена. Для публикации в подкаталоге (`<user>.github.io/fishhike/`) задайте переменную репозитория `BASE_PATH=/fishhike/` (Settings → Secrets and variables → Actions → Variables).
+
+Настройка домена (один раз):
+1. DNS: `fishhike.wg3664.ru CNAME netcorexc0a8.github.io` (в Cloudflare — режим «DNS only»).
+2. Settings → Pages → Custom domain: `fishhike.wg3664.ru`, затем включить **Enforce HTTPS**.
 
 ## Структура
 
