@@ -70,8 +70,8 @@ export function Moon({ info, size = 64 }: { info: MoonInfo; size?: number }) {
           <stop offset="1" stopColor="#D9C89C" />
         </radialGradient>
         <radialGradient id={`dark${uid}`} cx={1 - hx} cy="0.4" r="0.8">
-          <stop offset="0" stopColor="#26324D" />
-          <stop offset="1" stopColor="#141C2E" />
+          <stop offset="0" style={{ stopColor: 'var(--moon-shade-1)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--moon-shade-2)' }} />
         </radialGradient>
         <radialGradient id={`glow${uid}`} cx="0.5" cy="0.5" r="0.5">
           <stop offset="0.7" stopColor="#F4E9CC" stopOpacity="0.35" />
@@ -89,8 +89,8 @@ export function Moon({ info, size = 64 }: { info: MoonInfo; size?: number }) {
 
       {/* Тёмная сторона в пепельном свете */}
       <circle cx={c} cy={c} r={r} fill={`url(#dark${uid})`} />
-      {maria('#0B1120', 0.35)}
-      <circle cx={c} cy={c} r={r} fill="none" stroke="#3A4868" strokeWidth={Math.max(1, size / 64)} />
+      {maria('var(--moon-maria)', 0.35)}
+      <circle cx={c} cy={c} r={r} fill="none" stroke="var(--moon-edge)" strokeWidth={Math.max(1, size / 64)} />
 
       {/* Освещённая часть */}
       <g clipPath={`url(#clip${uid})`}>
