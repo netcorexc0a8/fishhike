@@ -14,6 +14,12 @@ const PATHS = {
   refresh: 'M20 11a8 8 0 0 0-14.9-4M4 4v4h4M4 13a8 8 0 0 0 14.9 4M20 20v-4h-4',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2',
   reset: 'M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4',
+  share: 'M12 3v12M8 7l4-4 4 4M6 11H5v10h14V11h-1',
+  plusSquare: 'M4 4h16v16H4zM12 8v8M8 12h8',
+  moreV: 'M12 5h.01M12 12h.01M12 19h.01',
+  download: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  wifiOff: 'M2 8.8a15 15 0 0 1 4.2-2.6M10.7 5.1A15 15 0 0 1 22 8.8M5 12.5a10 10 0 0 1 5.2-2.7M16.8 10.7a10 10 0 0 1 2.2 1.8M8.5 16a5 5 0 0 1 7 0M12 20h.01M3 3l18 18',
+  expand: 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
 } as const;
 
 export type IconName = keyof typeof PATHS;

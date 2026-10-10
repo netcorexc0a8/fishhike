@@ -162,6 +162,20 @@ a { color: var(--accent); }
 .tabbar.touring { z-index: 30; }
 .tabbar.touring .tab { opacity: 0.35; }
 .tabbar.touring .tab.spot { opacity: 1; color: var(--accent); font-weight: 700; background: var(--surface-2); box-shadow: 0 0 0 2px var(--accent); }
+/* Экран установки */
+.inst-backdrop { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; display: flex; justify-content: center; padding: calc(24px + env(safe-area-inset-top, 0px)) 20px calc(24px + var(--safe-bottom)); animation: onb-fade 0.2s ease-out; }
+.inst-card { width: 100%; max-width: 440px; margin: auto 0; display: flex; flex-direction: column; gap: 16px; }
+.inst-icon { align-self: center; border-radius: 18px; box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5); }
+.inst-title { margin: 0; text-align: center; font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 30px; line-height: 1.15; }
+.inst-benefits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.inst-benefits li { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 12px 14px; font-size: 15px; line-height: 1.35; }
+.inst-bicon { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 12px; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+.inst-howto { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--radius-l); padding: 16px; }
+.inst-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.inst-step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; line-height: 1.5; font-size: 15px; }
+.inst-num { width: 28px; height: 28px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.inst-glyph { display: inline-flex; vertical-align: -3px; padding: 2px 4px; border-radius: 6px; background: var(--surface-2); color: #6cb2ff; }
+.inst-note { margin: 14px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
 @keyframes onb-fade { from { opacity: 0; } }
 @keyframes onb-up { from { transform: translateY(16px); opacity: 0; } }
 

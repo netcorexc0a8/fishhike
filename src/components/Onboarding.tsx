@@ -55,14 +55,21 @@ const STEPS: Step[] = [
   },
 ];
 
-export function Onboarding({ onStepTab }: { onStepTab: (tab: number | null | undefined) => void }) {
+export function Onboarding({
+  onStepTab,
+  waiting = false,
+}: {
+  onStepTab: (tab: number | null | undefined) => void;
+  /** Пока открыт экран установки, первое обучение ждёт. */
+  waiting?: boolean;
+}) {
   const done = useLiveQuery(() => db.settings.get(ONBOARDING_KEY).then((s) => s?.value === '1'), []);
   const [forced, setForced] = useState(false);
   const [i, setI] = useState(0);
   const navigate = useNavigate();
   const primaryRef = useRef<HTMLButtonElement>(null);
 
-  const open = forced || done === false;
+  const open = forced || (done === false && !waiting);
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
 
