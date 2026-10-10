@@ -27,7 +27,9 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+          # Приложение отдаётся с корня домена fishhike.wg3664.ru.
+          # Для адреса вида <user>.github.io/<repo>/ задайте переменную репозитория BASE_PATH=/fishhike/
+          BASE_PATH: ${{ vars.BASE_PATH || '/' }}
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
