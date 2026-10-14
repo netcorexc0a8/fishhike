@@ -1,5 +1,0 @@
-# Фрагмент для config.yaml Mihomo на proxy1/proxy2.
-# Добавь строку в секцию rules: ВЫШЕ правила MATCH (порядок важен).
-# Вместо VLESS подставь имя своей proxy-группы/outbound, через которую уже идёт Telegram.
-rules:
-  - DOMAIN-SUFFIX,open-meteo.com,VLESS

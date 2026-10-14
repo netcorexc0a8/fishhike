@@ -1,14 +1,13 @@
 // Источники погоды с перебором адресов.
-// Open-Meteo из части российских сетей недоступен, поэтому первым идёт свой прокси
-// (meteo.wg3664.ru → Open-Meteo через VPN, см. deploy/caddy), затем прямые адреса Open-Meteo.
-// Ответивший адрес запоминается на 6 часов и пробуется первым.
+// Основной адрес Open-Meteo из части российских сетей недоступен, поэтому пробуем
+// по очереди несколько адресов. Ответивший запоминается на 6 часов и пробуется первым.
 // Списки можно переопределить при сборке: VITE_FORECAST_HOSTS / VITE_GEOCODER_HOSTS (через запятую).
 
 export type HostKind = 'forecast' | 'geocoder';
 
 const DEFAULTS: Record<HostKind, string[]> = {
-  forecast: ['https://meteo.wg3664.ru', 'https://api.open-meteo.com', 'https://historical-forecast-api.open-meteo.com'],
-  geocoder: ['https://meteo.wg3664.ru', 'https://geocoding-api.open-meteo.com'],
+  forecast: ['https://api.open-meteo.com', 'https://historical-forecast-api.open-meteo.com'],
+  geocoder: ['https://geocoding-api.open-meteo.com'],
 };
 
 const STICKY_MS = 6 * 3_600_000;
