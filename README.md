@@ -35,6 +35,25 @@ Workflow `.github/workflows/pwa.yml` на каждый PR прогоняет п�
 1. DNS: `fishhike.wg3664.ru CNAME netcorexc0a8.github.io` (в Cloudflare — режим «DNS only»).
 2. Settings → Pages → Custom domain: `fishhike.wg3664.ru`, затем включить **Enforce HTTPS**.
 
+## Прокси погоды (доступ из России)
+
+Open-Meteo из части российских сетей недоступен. Приложение перебирает адреса по очереди и запоминает рабочий на 6 часов (`src/lib/hosts.ts`):
+
+1. `https://meteo.wg3664.ru` — свой прокси на proxy1/proxy2;
+2. `https://api.open-meteo.com` — напрямую;
+3. `https://historical-forecast-api.open-meteo.com` — запасной адрес Open-Meteo.
+
+Геокодер — так же: прокси, затем `geocoding-api.open-meteo.com`. Каждой попытке даётся 7 секунд. Списки можно переопределить переменными репозитория `VITE_FORECAST_HOSTS` / `VITE_GEOCODER_HOSTS` (через запятую).
+
+Настройка прокси:
+1. **Caddy** на proxy1 и proxy2 — блок из `deploy/meteo.Caddyfile` (только `GET /v1/forecast` и `/v1/search`, CORS для `fishhike.wg3664.ru`, без передачи IP пользователя).
+2. **Mihomo** — правило из `deploy/mihomo-rules.yaml`: `DOMAIN-SUFFIX,open-meteo.com` через VLESS.
+3. **HAProxy** на OPNsense — SNI `meteo.wg3664.ru` на тот же бэкенд Caddy.
+4. **DNS** в Cloudflare — `meteo` A/AAAA на внешний адрес, режим «DNS only». Wildcard-сертификат уже покрывает имя.
+5. Проверка из контейнера Caddy, что исходящий трафик идёт через VPN:
+   `docker compose exec caddy wget -qO- 'https://api.open-meteo.com/v1/forecast?latitude=55.75&longitude=37.62&current=temperature_2m'`
+   и снаружи: `curl -s 'https://meteo.wg3664.ru/v1/forecast?latitude=55.75&longitude=37.62&current=temperature_2m'`.
+
 ## Структура
 
 ```

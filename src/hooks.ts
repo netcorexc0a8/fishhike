@@ -90,7 +90,11 @@ export function useForecast(place: Place | null | undefined): ForecastState {
         await db.forecasts.put({ placeId: place.id, fetchedAt: f.fetchedAt, json: serializeForecast(f) });
       } catch (e) {
         if (cancelled || (e instanceof DOMException && e.name === 'AbortError')) return;
-        setError(cached ? 'Нет связи — показан сохранённый прогноз.' : 'Не удалось загрузить прогноз. Проверьте подключение.');
+        setError(
+          cached
+            ? 'Источник погоды недоступен — показан сохранённый прогноз.'
+            : 'Не удалось загрузить прогноз: источник погоды недоступен. Проверьте подключение и попробуйте позже.',
+        );
       } finally {
         if (!cancelled) setLoading(false);
       }

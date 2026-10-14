@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { hostsPattern } from './src/lib/hosts';
 
 // Базовый путь: по умолчанию корень домена (fishhike.wg3664.ru). Для подкаталога — BASE_PATH=/fishhike/.
 const base = process.env.BASE_PATH ?? '/';
@@ -35,11 +36,11 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Прогноз: сначала сеть, при офлайне — последний ответ.
-            urlPattern: /^https:\/\/(api|geocoding-api)\.open-meteo\.com\//,
+            urlPattern: hostsPattern(),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'open-meteo',
-              networkTimeoutSeconds: 6,
+              networkTimeoutSeconds: 8,
               expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 3 },
             },
           },

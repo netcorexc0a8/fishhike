@@ -1,5 +1,6 @@
 import { bestWindows, scoreHour, type BiteWindow, type DaySun, type HourScore } from './bite';
 import { solunarEvents, type SolunarEvent } from './astro';
+import { fetchJson } from './hosts';
 
 // Open-Meteo: бесплатно, без ключа. Время приходит в часовом поясе места (timezone=auto)
 // без смещения — парсим его как «местное», чтобы часы на экране совпадали с часами на водоёме.
@@ -34,6 +35,8 @@ export interface DayForecast {
 export interface Forecast {
   fetchedAt: number;
   days: DayForecast[];
+  /** Адрес, с которого пришёл прогноз (свой прокси или Open-Meteo). */
+  source?: string;
 }
 
 export interface MoonDay {
@@ -75,7 +78,8 @@ function utcToLocal(at: Date, offsetSec: number): Date {
   return new Date(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate(), x.getUTCHours(), x.getUTCMinutes());
 }
 
-export function forecastUrl(lat: number, lon: number): string {
+/** Путь и параметры запроса прогноза — адрес сервера подставляет fetchJson. */
+export function forecastPath(lat: number, lon: number): string {
   const p = new URLSearchParams({
     latitude: lat.toFixed(4),
     longitude: lon.toFixed(4),
@@ -85,7 +89,7 @@ export function forecastUrl(lat: number, lon: number): string {
     timezone: 'auto',
     forecast_days: String(FORECAST_DAYS),
   });
-  return `https://api.open-meteo.com/v1/forecast?${p}`;
+  return `/v1/forecast?${p}`;
 }
 
 export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): Forecast {
@@ -151,9 +155,8 @@ export function buildForecast(raw: OpenMeteoResponse, fetchedAt = Date.now()): F
 }
 
 export async function fetchForecast(lat: number, lon: number, signal?: AbortSignal): Promise<Forecast> {
-  const res = await fetch(forecastUrl(lat, lon), { signal });
-  if (!res.ok) throw new Error(`Open-Meteo: ${res.status}`);
-  return buildForecast((await res.json()) as OpenMeteoResponse);
+  const { data, host } = await fetchJson<OpenMeteoResponse>('forecast', forecastPath(lat, lon), signal);
+  return { ...buildForecast(data), source: host };
 }
 
 export interface GeoResult {
@@ -165,11 +168,9 @@ export interface GeoResult {
 
 export async function searchPlaces(query: string, signal?: AbortSignal): Promise<GeoResult[]> {
   const p = new URLSearchParams({ name: query, count: '8', language: 'ru', format: 'json' });
-  const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${p}`, { signal });
-  if (!res.ok) throw new Error(`Геокодер: ${res.status}`);
-  const data = (await res.json()) as {
+  const { data } = await fetchJson<{
     results?: { name: string; admin1?: string; country?: string; latitude: number; longitude: number }[];
-  };
+  }>('geocoder', `/v1/search?${p}`, signal);
   return (data.results ?? []).map((r) => ({
     name: r.name,
     region: [r.admin1, r.country].filter(Boolean).join(', '),
