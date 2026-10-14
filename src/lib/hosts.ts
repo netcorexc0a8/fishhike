@@ -10,7 +10,7 @@ const DEFAULTS: Record<HostKind, string[]> = {
   geocoder: ['https://geocoding-api.open-meteo.com'],
 };
 
-const STICKY_MS = 6 * 3_600_000;
+const STICKY_MS = 30 * 86_400_000; // 30 дней: заблокированный основной адрес не тормозит каждый запуск
 export const ATTEMPT_TIMEOUT_MS = 7_000;
 
 function fromEnv(kind: HostKind): string[] | null {

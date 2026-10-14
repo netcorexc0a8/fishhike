@@ -37,7 +37,7 @@ Workflow `.github/workflows/pwa.yml` на каждый PR прогоняет п�
 
 ## Доступ к погоде из России
 
-Основной адрес Open-Meteo из части российских сетей недоступен. Приложение перебирает адреса по очереди и запоминает рабочий на 6 часов (`src/lib/hosts.ts`):
+Основной адрес Open-Meteo из части российских сетей недоступен. Приложение перебирает адреса по очереди и запоминает рабочий на 30 дней (`src/lib/hosts.ts`):
 
 - прогноз: `api.open-meteo.com` → `historical-forecast-api.open-meteo.com` (тот же `/v1/forecast`);
 - поиск мест: `geocoding-api.open-meteo.com`.
