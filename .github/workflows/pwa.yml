@@ -30,6 +30,9 @@ jobs:
           # Приложение отдаётся с корня домена fishhike.wg3664.ru.
           # Для адреса вида <user>.github.io/<repo>/ задайте переменную репозитория BASE_PATH=/fishhike/
           BASE_PATH: ${{ vars.BASE_PATH || '/' }}
+          # Необязательно: свои списки адресов погоды через запятую (по умолчанию — Open-Meteo, см. src/lib/hosts.ts)
+          VITE_FORECAST_HOSTS: ${{ vars.VITE_FORECAST_HOSTS }}
+          VITE_GEOCODER_HOSTS: ${{ vars.VITE_GEOCODER_HOSTS }}
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:

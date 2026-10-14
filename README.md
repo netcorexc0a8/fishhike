@@ -35,6 +35,15 @@ Workflow `.github/workflows/pwa.yml` на каждый PR прогоняет п�
 1. DNS: `fishhike.wg3664.ru CNAME netcorexc0a8.github.io` (в Cloudflare — режим «DNS only»).
 2. Settings → Pages → Custom domain: `fishhike.wg3664.ru`, затем включить **Enforce HTTPS**.
 
+## Доступ к погоде из России
+
+Основной адрес Open-Meteo из части российских сетей недоступен. Приложение перебирает адреса по очереди и запоминает рабочий на 30 дней (`src/lib/hosts.ts`):
+
+- прогноз: `api.open-meteo.com` → `historical-forecast-api.open-meteo.com` (тот же `/v1/forecast`);
+- поиск мест: `geocoding-api.open-meteo.com`.
+
+Каждой попытке даётся 7 секунд. Списки можно переопределить переменными репозитория `VITE_FORECAST_HOSTS` / `VITE_GEOCODER_HOSTS` (адреса через запятую) — например, если позже появится свой прокси.
+
 ## Структура
 
 ```

@@ -203,6 +203,7 @@ export function ForecastScreen() {
       {forecast && !error && (
         <div className="label" style={{ textAlign: 'center' }}>
           Обновлено {ago(forecast.fetchedAt)} · Open-Meteo
+          {forecast.source && !forecast.source.includes('open-meteo.com') && <> через {new URL(forecast.source).host}</>}
         </div>
       )}
 
