@@ -189,10 +189,9 @@ export function ForecastScreen() {
             <div className="factor-value">{moon.name}</div>
             <div className="factor-note">освещена {Math.round(moon.illumination * 100)}%</div>
             {day.moon && (day.moon.rise || day.moon.set) && (
-              <div className="label" style={{ marginTop: 4 }}>
-                {day.moon.rise && <>восход {fmtTime(day.moon.rise)}</>}
-                {day.moon.rise && day.moon.set && ' · '}
-                {day.moon.set && <>заход {fmtTime(day.moon.set)}</>}
+              <div className="label" style={{ marginTop: 4, lineHeight: 1.5 }}>
+                {day.moon.rise && <div>восход {fmtTime(day.moon.rise)}</div>}
+                {day.moon.set && <div>заход {fmtTime(day.moon.set)}</div>}
               </div>
             )}
           </div>
