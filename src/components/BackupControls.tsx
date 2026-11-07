@@ -57,7 +57,7 @@ export function BackupControls() {
     <div className="field" style={{ gap: 10 }}>
       <span className="label">Резервная копия</span>
       <p className="muted" style={{ margin: 0, fontSize: 13, lineHeight: 1.45 }}>
-        Улов с фото, сборы, свои рецепты и места — в одном файле. Отправьте его себе (AirDrop, Telegram, «Файлы») и восстановите на
+        Улов с фото, треки, сборы, свои рецепты и места — в одном файле. Отправьте его себе (AirDrop, Telegram, «Файлы») и восстановите на
         другом телефоне. Данные объединяются, ничего не удаляется.
       </p>
       <div className="btn-row">

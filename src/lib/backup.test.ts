@@ -83,6 +83,7 @@ describe('резервная копия', () => {
   it('читает старые копии без улова и отбрасывает битые записи улова', () => {
     const old = parseBackup(JSON.stringify({ app: 'fishhike', version: 1, data: {} }));
     expect(old.data.catches).toEqual([]);
+    expect(old.data.tracks).toEqual([]);
     const b = parseBackup(
       JSON.stringify({
         app: 'fishhike',
@@ -98,6 +99,30 @@ describe('резервная копия', () => {
     );
     expect(b.data.catches.map((c) => c.id)).toEqual(['ok']);
     expect(b.data.catches[0]).toMatchObject({ weightKg: null, tags: [], photo: null, placeName: '' });
+  });
+
+  it('переносит треки и пересчитывает их длину', async () => {
+    const now = Date.now();
+    const seg = [
+      { lat: 55, lon: 37, t: now - 120_000, acc: 8 },
+      { lat: 55.001, lon: 37, t: now - 60_000, acc: 8 },
+    ];
+    await db.tracks.add({ id: 't1', name: 'Утро на Оке', startedAt: now - 120_000, endedAt: now - 60_000, segments: [seg], distanceM: 111, movingMs: 60_000, createdAt: now, updatedAt: now });
+    const file = JSON.stringify(await createBackup());
+    await reset();
+    await restoreBackup(parseBackup(file));
+    expect(await db.tracks.get('t1')).toMatchObject({ name: 'Утро на Оке', movingMs: 60_000 });
+
+    const b = parseBackup(
+      JSON.stringify({
+        app: 'fishhike',
+        version: 3,
+        data: { tracks: [{ id: 'x', startedAt: 5, updatedAt: 5, endedAt: null, distanceM: 1e9, segments: [[{ lat: 999, lon: 0, t: 1 }, { lat: 55, lon: 37, t: 9 }]] }, { id: 'bad', startedAt: 1, updatedAt: 1, segments: 'нет' }] },
+      }),
+    );
+    expect(b.data.tracks.map((t) => t.id)).toEqual(['x']);
+    expect(b.data.tracks[0]).toMatchObject({ endedAt: 9, distanceM: 0, name: 'Трек' });
+    expect(b.data.tracks[0].segments[0]).toHaveLength(1);
   });
 
   it('имя файла с датой', () => {

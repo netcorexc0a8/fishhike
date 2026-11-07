@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, setSetting } from '../db';
 import { addCurrentLocation, addPlace, geoErrorText, useCurrentPlace, useOnline } from '../hooks';
@@ -79,8 +79,11 @@ export function PlacesScreen() {
   return (
     <main className="screen">
       <div className="topbar">
-        <h2>Места</h2>
+        <Link className="back-btn" to="/map">
+          <Icon name="chevronLeft" /> Карта
+        </Link>
       </div>
+      <h1 className="headline" style={{ fontSize: 30 }}>Места и настройки</h1>
 
       <button className="btn btn-primary btn-block" onClick={locate} disabled={locating}>
         <Icon name="locate" /> {locating ? 'Определяем…' : 'Добавить моё местоположение'}

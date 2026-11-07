@@ -48,6 +48,32 @@ export interface Catch {
   updatedAt: number;
 }
 
+/** Точка трека: координаты, время (мс) и точность GPS в метрах. */
+export interface TrackPoint {
+  lat: number;
+  lon: number;
+  t: number;
+  acc: number;
+}
+
+/**
+ * Записанный маршрут. segments — отрезки движения: пауза или долгий перерыв в сигнале
+ * начинают новый отрезок, чтобы на карте не было прямой через весь перерыв.
+ */
+export interface Track {
+  id: string;
+  name: string;
+  startedAt: number;
+  /** null — запись ещё идёт. */
+  endedAt: number | null;
+  segments: TrackPoint[][];
+  distanceM: number;
+  /** Время в движении без пауз, мс. */
+  movingMs: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Place {
   id: string;
   name: string;
@@ -75,6 +101,7 @@ export const db = new Dexie('fishhike') as Dexie & {
   settings: EntityTable<Setting, 'key'>;
   forecasts: EntityTable<ForecastCache, 'placeId'>;
   catches: EntityTable<Catch, 'id'>;
+  tracks: EntityTable<Track, 'id'>;
 };
 
 db.version(1).stores({
@@ -88,6 +115,11 @@ db.version(1).stores({
 // v2: журнал улова.
 db.version(2).stores({
   catches: 'id, caughtAt, species, updatedAt',
+});
+
+// v3: записанные треки.
+db.version(3).stores({
+  tracks: 'id, startedAt, updatedAt',
 });
 
 db.on('populate', async (tx) => {

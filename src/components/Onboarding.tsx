@@ -5,7 +5,7 @@ import { db, setSetting } from '../db';
 import { Icon, type IconName } from './Icon';
 
 export const ONBOARDING_KEY = 'onboardingDone';
-/** Событие для повторного показа подсказок (кнопка на экране «Места»). */
+/** Событие для повторного показа подсказок (кнопка в «Местах и настройках»). */
 export const ONBOARDING_EVENT = 'fishhike:onboarding';
 
 interface Step {
@@ -55,10 +55,10 @@ const STEPS: Step[] = [
   },
   {
     tab: 4,
-    route: '/places',
-    icon: 'pin',
-    title: 'Места',
-    text: 'Добавьте текущую позицию или найдите водоём по названию — прогноз считается для выбранного места.',
+    route: '/map',
+    icon: 'map',
+    title: 'Карта',
+    text: 'Места, улов с координатами и записанные треки. Кнопка «Записать трек» ведёт маршрут по GPS. Здесь же «Места и настройки»: позиция для прогноза, тема и резервная копия.',
   },
 ];
 

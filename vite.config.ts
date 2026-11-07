@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { hostsPattern } from './src/lib/hosts';
+import { tilesPattern } from './src/lib/tiles';
 
 // Базовый путь: по умолчанию корень домена (fishhike.wg3664.ru). Для подкаталога — BASE_PATH=/fishhike/.
 const base = process.env.BASE_PATH ?? '/';
@@ -16,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: 'FishHike — спутник рыбака',
         short_name: 'FishHike',
-        description: 'Прогноз клёва, сборы, походные рецепты и места',
+        description: 'Прогноз клёва, журнал улова, карта и треки, сборы и походные рецепты',
         lang: 'ru',
         theme_color: '#1A2A29',
         background_color: '#1A2A29',
@@ -42,6 +43,16 @@ export default defineConfig({
               cacheName: 'open-meteo',
               networkTimeoutSeconds: 8,
               expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 3 },
+            },
+          },
+          {
+            // Плитки карты: что уже смотрели, открывается без сети. Старые вытесняются.
+            urlPattern: tilesPattern(),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'map-tiles',
+              expiration: { maxEntries: 1500, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [200] },
             },
           },
         ],

@@ -80,6 +80,11 @@ export function CatchDetailScreen() {
           </div>
         </div>
       )}
+      {c.lat != null && c.lon != null && (
+        <Link className="btn btn-sm map-link" to={`/map?catch=${c.id}`}>
+          <Icon name="map" size={18} /> Показать на карте
+        </Link>
+      )}
 
       {c.tags.length > 0 && (
         <>
