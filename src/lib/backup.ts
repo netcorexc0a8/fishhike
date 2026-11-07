@@ -1,4 +1,4 @@
-import { db, type Checklist, type Place, type Recipe } from '../db';
+import { db, type Catch, type Checklist, type Place, type Recipe } from '../db';
 import { THEME_KEY } from './theme';
 
 // Резервная копия всех пользовательских данных в один JSON-файл.
@@ -6,7 +6,8 @@ import { THEME_KEY } from './theme';
 // Кэш прогнозов не сохраняется — он пересчитается при первом открытии.
 
 export const BACKUP_APP = 'fishhike';
-export const BACKUP_VERSION = 1;
+/** 2 — добавлен журнал улова (вместе с фото). Копии версии 1 читаются как раньше. */
+export const BACKUP_VERSION = 2;
 
 export interface Backup {
   app: typeof BACKUP_APP;
@@ -16,6 +17,7 @@ export interface Backup {
     checklists: Checklist[];
     recipes: Recipe[];
     places: Place[];
+    catches: Catch[];
     placeId: string | null;
     theme: string | null;
   };
@@ -34,17 +36,18 @@ export async function createBackup(now = new Date()): Promise<Backup> {
   } catch {
     /* нет localStorage */
   }
-  const [checklists, recipes, places, placeSetting] = await Promise.all([
+  const [checklists, recipes, places, catches, placeSetting] = await Promise.all([
     db.checklists.toArray(),
     db.recipes.toArray(),
     db.places.toArray(),
+    db.catches.toArray(),
     db.settings.get('placeId'),
   ]);
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
-    data: { checklists, recipes, places, placeId: placeSetting?.value ?? null, theme },
+    data: { checklists, recipes, places, catches, placeId: placeSetting?.value ?? null, theme },
   };
 }
 
@@ -87,6 +90,20 @@ function validPlace(p: unknown): p is Place {
   return isObj(p) && isStr(p.id) && isStr(p.name) && isNum(p.lat) && isNum(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180;
 }
 
+const numOrNull = (v: unknown) => (isNum(v) ? v : null);
+
+function validCatch(c: unknown): c is Catch {
+  return (
+    isObj(c) &&
+    isStr(c.id) &&
+    isStr(c.species) &&
+    c.species.trim() !== '' &&
+    isNum(c.caughtAt) &&
+    isNum(c.updatedAt) &&
+    (c.photo == null || (isStr(c.photo) && c.photo.startsWith('data:image/')))
+  );
+}
+
 /** Разбирает и проверяет файл. Бросает Error с понятным текстом. */
 export function parseBackup(text: string): Backup {
   let raw: unknown;
@@ -117,6 +134,23 @@ export function parseBackup(text: string): Backup {
       places: arr(d.places)
         .filter(validPlace)
         .map((p) => ({ ...p, region: isStr(p.region) ? p.region : '', createdAt: isNum(p.createdAt) ? p.createdAt : Date.now() })),
+      catches: arr(d.catches)
+        .filter(validCatch)
+        .map((c) => ({
+          id: c.id,
+          species: c.species,
+          weightKg: numOrNull(c.weightKg),
+          lengthCm: numOrNull(c.lengthCm),
+          caughtAt: c.caughtAt,
+          placeName: isStr(c.placeName) ? c.placeName : '',
+          lat: numOrNull(c.lat),
+          lon: numOrNull(c.lon),
+          tags: strArr(c.tags) ? c.tags : [],
+          note: isStr(c.note) ? c.note : '',
+          photo: isStr(c.photo) ? c.photo : null,
+          createdAt: isNum(c.createdAt) ? c.createdAt : c.updatedAt,
+          updatedAt: c.updatedAt,
+        })),
       placeId: isStr(d.placeId) ? d.placeId : null,
       theme: d.theme === 'light' || d.theme === 'dark' ? d.theme : null,
     },
@@ -130,7 +164,7 @@ export function parseBackup(text: string): Backup {
 export async function restoreBackup(b: Backup): Promise<ImportResult> {
   const res: ImportResult = { added: 0, updated: 0, skipped: 0 };
 
-  await db.transaction('rw', db.checklists, db.recipes, db.places, db.settings, async () => {
+  await db.transaction('rw', [db.checklists, db.recipes, db.places, db.catches, db.settings], async () => {
     // Стартовые записи (seed-*), которые на этом телефоне не трогали, всегда уступают копии:
     // они созданы при первом запуске и «новее» по времени, хотя правок в них нет.
     const pristine = (cur: { id: string; createdAt: number; updatedAt: number }) =>
@@ -152,6 +186,7 @@ export async function restoreBackup(b: Backup): Promise<ImportResult> {
     };
     await mergeByUpdated<Checklist>(db.checklists, b.data.checklists);
     await mergeByUpdated<Recipe>(db.recipes, b.data.recipes);
+    await mergeByUpdated<Catch>(db.catches, b.data.catches);
 
     for (const p of b.data.places) {
       if (await db.places.get(p.id)) res.skipped++;

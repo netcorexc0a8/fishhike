@@ -6,6 +6,8 @@ import { addCurrentLocation, geoErrorText, useCurrentPlace, useForecast } from '
 import { BiteBars } from '../components/BiteBars';
 import { Icon } from '../components/Icon';
 import { Moon } from '../components/Moon';
+import { CatchPhoto } from '../components/CatchPhoto';
+import { fmtAmount, fmtCatchDay } from '../lib/catches';
 import { ThemeToggle } from '../components/ThemeControls';
 import { moonInfo } from '../lib/moon';
 import { verdict } from '../lib/bite';
@@ -39,6 +41,7 @@ export function ForecastScreen() {
   const [locating, setLocating] = useState(false);
 
   const checklist = useLiveQuery(() => db.checklists.orderBy('updatedAt').last(), []);
+  const lastCatch = useLiveQuery(() => db.catches.orderBy('caughtAt').last(), []);
 
   const day = forecast?.days[Math.min(dayIdx, (forecast?.days.length ?? 1) - 1)];
   const isToday = dayIdx === 0;
@@ -223,6 +226,23 @@ export function ForecastScreen() {
           </div>
           <Icon name="chevronRight" />
         </Link>
+      )}
+      {lastCatch && (
+        <>
+          <div className="section-title">Последний улов</div>
+          <Link className="catch-row" to={`/catches/${lastCatch.id}`}>
+            <CatchPhoto c={lastCatch} />
+            <div className="catch-main">
+              <div className="title">{lastCatch.species}</div>
+              <div className="sub">{[fmtCatchDay(lastCatch.caughtAt), lastCatch.placeName].filter(Boolean).join(' · ')}</div>
+            </div>
+            <div className="catch-num">
+              <span>кг</span>
+              <b>{lastCatch.weightKg != null ? fmtAmount(lastCatch.weightKg) : '—'}</b>
+            </div>
+            <Icon name="chevronRight" />
+          </Link>
+        </>
       )}
     </main>
   );

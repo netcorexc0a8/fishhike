@@ -3,6 +3,7 @@ import { Icon, type IconName } from './Icon';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/', label: 'Прогноз', icon: 'fish', end: true },
+  { to: '/catches', label: 'Улов', icon: 'basket' },
   { to: '/checklists', label: 'Сборы', icon: 'check' },
   { to: '/recipes', label: 'Рецепты', icon: 'pot' },
   { to: '/places', label: 'Места', icon: 'pin' },

@@ -10,6 +10,9 @@ import { RecipesScreen } from './screens/RecipesScreen';
 import { RecipeDetailScreen } from './screens/RecipeDetailScreen';
 import { RecipeEditScreen } from './screens/RecipeEditScreen';
 import { PlacesScreen } from './screens/PlacesScreen';
+import { CatchesScreen } from './screens/CatchesScreen';
+import { CatchDetailScreen } from './screens/CatchDetailScreen';
+import { CatchEditScreen } from './screens/CatchEditScreen';
 
 // HashRouter — чтобы прямые ссылки работали на GitHub Pages без серверных перенаправлений.
 export function App() {
@@ -23,6 +26,10 @@ export function App() {
       <div className="app" inert={blocked || undefined} aria-hidden={blocked || undefined}>
         <Routes>
           <Route path="/" element={<ForecastScreen />} />
+          <Route path="/catches" element={<CatchesScreen />} />
+          <Route path="/catches/new" element={<CatchEditScreen />} />
+          <Route path="/catches/:id" element={<CatchDetailScreen />} />
+          <Route path="/catches/:id/edit" element={<CatchEditScreen />} />
           <Route path="/checklists" element={<ChecklistsScreen />} />
           <Route path="/checklists/:id" element={<ChecklistDetailScreen />} />
           <Route path="/recipes" element={<RecipesScreen />} />

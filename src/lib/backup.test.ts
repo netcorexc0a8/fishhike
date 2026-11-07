@@ -65,6 +65,41 @@ describe('резервная копия', () => {
     expect(b.data.places.map((p) => p.id)).toEqual(['y']);
   });
 
+  it('переносит журнал улова вместе с фото', async () => {
+    const now = Date.now();
+    const photo = 'data:image/webp;base64,UklGRg==';
+    await db.catches.add({
+      id: 'c1', species: 'Щука', weightKg: 4.2, lengthCm: 78, caughtAt: now - 1000, placeName: 'р. Ока',
+      lat: 54.9, lon: 37.4, tags: ['джиг'], note: 'у бровки', photo, createdAt: now, updatedAt: now,
+    });
+    const file = JSON.stringify(await createBackup());
+
+    await reset();
+    const r = await restoreBackup(parseBackup(file));
+    expect(await db.catches.get('c1')).toMatchObject({ species: 'Щука', weightKg: 4.2, photo, tags: ['джиг'] });
+    expect(r.added).toBe(1);
+  });
+
+  it('читает старые копии без улова и отбрасывает битые записи улова', () => {
+    const old = parseBackup(JSON.stringify({ app: 'fishhike', version: 1, data: {} }));
+    expect(old.data.catches).toEqual([]);
+    const b = parseBackup(
+      JSON.stringify({
+        app: 'fishhike',
+        version: 2,
+        data: {
+          catches: [
+            { id: 'ok', species: 'Окунь', caughtAt: 1, updatedAt: 1, weightKg: 'много' },
+            { id: 'no-species', species: ' ', caughtAt: 1, updatedAt: 1 },
+            { id: 'bad-photo', species: 'Лещ', caughtAt: 1, updatedAt: 1, photo: 'javascript:alert(1)' },
+          ],
+        },
+      }),
+    );
+    expect(b.data.catches.map((c) => c.id)).toEqual(['ok']);
+    expect(b.data.catches[0]).toMatchObject({ weightKg: null, tags: [], photo: null, placeName: '' });
+  });
+
   it('имя файла с датой', () => {
     expect(backupFileName(new Date(2026, 9, 12))).toBe('fishhike-backup-2026-10-12.json');
   });
