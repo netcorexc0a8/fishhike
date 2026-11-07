@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#EEF2EF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1A2A29" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F2F0E4" media="(prefers-color-scheme: light)" />
     <meta name="description" content="FishHike — прогноз клёва, сборы, походные рецепты и места" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <!-- Через src/assets: Vite добавляет хэш к имени, и при смене иконки меняется адрес.
@@ -18,7 +18,7 @@
         var t = localStorage.getItem('fishhike-theme');
         if (t === 'light' || t === 'dark') {
           document.documentElement.dataset.theme = t;
-          var c = t === 'light' ? '#EEF2EF' : '#0B1220';
+          var c = t === 'light' ? '#F2F0E4' : '#1A2A29';
           document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = c; });
         }
       } catch (e) {}
