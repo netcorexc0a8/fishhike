@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { TabBar } from './components/TabBar';
 import { Onboarding } from './components/Onboarding';
@@ -13,6 +13,14 @@ import { PlacesScreen } from './screens/PlacesScreen';
 import { CatchesScreen } from './screens/CatchesScreen';
 import { CatchDetailScreen } from './screens/CatchDetailScreen';
 import { CatchEditScreen } from './screens/CatchEditScreen';
+
+// Карта с Leaflet грузится отдельным файлом — остальные разделы открываются быстрее.
+const MapScreen = lazy(() => import('./screens/MapScreen'));
+const mapFallback = (
+  <main className="screen">
+    <div className="skeleton" style={{ height: 360 }} />
+  </main>
+);
 
 // HashRouter — чтобы прямые ссылки работали на GitHub Pages без серверных перенаправлений.
 export function App() {
@@ -36,6 +44,7 @@ export function App() {
           <Route path="/recipes/new" element={<RecipeEditScreen />} />
           <Route path="/recipes/:id" element={<RecipeDetailScreen />} />
           <Route path="/recipes/:id/edit" element={<RecipeEditScreen />} />
+          <Route path="/map" element={<Suspense fallback={mapFallback}><MapScreen /></Suspense>} />
           <Route path="/places" element={<PlacesScreen />} />
           <Route path="*" element={<ForecastScreen />} />
         </Routes>

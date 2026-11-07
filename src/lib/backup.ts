@@ -1,4 +1,5 @@
-import { db, type Catch, type Checklist, type Place, type Recipe } from '../db';
+import { db, type Catch, type Checklist, type Place, type Recipe, type Track, type TrackPoint } from '../db';
+import { trackStats } from './geo';
 import { THEME_KEY } from './theme';
 
 // Резервная копия всех пользовательских данных в один JSON-файл.
@@ -6,8 +7,8 @@ import { THEME_KEY } from './theme';
 // Кэш прогнозов не сохраняется — он пересчитается при первом открытии.
 
 export const BACKUP_APP = 'fishhike';
-/** 2 — добавлен журнал улова (вместе с фото). Копии версии 1 читаются как раньше. */
-export const BACKUP_VERSION = 2;
+/** 2 — журнал улова (вместе с фото), 3 — треки. Копии прежних версий читаются как раньше. */
+export const BACKUP_VERSION = 3;
 
 export interface Backup {
   app: typeof BACKUP_APP;
@@ -18,6 +19,7 @@ export interface Backup {
     recipes: Recipe[];
     places: Place[];
     catches: Catch[];
+    tracks: Track[];
     placeId: string | null;
     theme: string | null;
   };
@@ -36,18 +38,19 @@ export async function createBackup(now = new Date()): Promise<Backup> {
   } catch {
     /* нет localStorage */
   }
-  const [checklists, recipes, places, catches, placeSetting] = await Promise.all([
+  const [checklists, recipes, places, catches, tracks, placeSetting] = await Promise.all([
     db.checklists.toArray(),
     db.recipes.toArray(),
     db.places.toArray(),
     db.catches.toArray(),
+    db.tracks.toArray(),
     db.settings.get('placeId'),
   ]);
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
-    data: { checklists, recipes, places, catches, placeId: placeSetting?.value ?? null, theme },
+    data: { checklists, recipes, places, catches, tracks, placeId: placeSetting?.value ?? null, theme },
   };
 }
 
@@ -104,6 +107,31 @@ function validCatch(c: unknown): c is Catch {
   );
 }
 
+const validPoint = (p: unknown): p is TrackPoint =>
+  isObj(p) && isNum(p.lat) && isNum(p.lon) && isNum(p.t) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180;
+
+function validTrack(t: unknown): t is Track {
+  return isObj(t) && isStr(t.id) && isNum(t.startedAt) && isNum(t.updatedAt) && Array.isArray(t.segments) && t.segments.every(Array.isArray);
+}
+
+function normTrack(t: Track): Track {
+  const segments = t.segments
+    .map((s) => (s as unknown[]).filter(validPoint).map((p) => ({ lat: p.lat, lon: p.lon, t: p.t, acc: isNum(p.acc) ? p.acc : 0 })))
+    .filter((s) => s.length > 0);
+  const last = segments.at(-1)?.at(-1);
+  return {
+    id: t.id,
+    name: isStr(t.name) && t.name.trim() ? t.name : 'Трек',
+    startedAt: t.startedAt,
+    // Незавершённая в копии запись на другом телефоне уже не продолжится.
+    endedAt: isNum(t.endedAt) ? t.endedAt : (last?.t ?? t.startedAt),
+    segments,
+    ...trackStats(segments),
+    createdAt: isNum(t.createdAt) ? t.createdAt : t.updatedAt,
+    updatedAt: t.updatedAt,
+  };
+}
+
 /** Разбирает и проверяет файл. Бросает Error с понятным текстом. */
 export function parseBackup(text: string): Backup {
   let raw: unknown;
@@ -151,6 +179,7 @@ export function parseBackup(text: string): Backup {
           createdAt: isNum(c.createdAt) ? c.createdAt : c.updatedAt,
           updatedAt: c.updatedAt,
         })),
+      tracks: arr(d.tracks).filter(validTrack).map(normTrack),
       placeId: isStr(d.placeId) ? d.placeId : null,
       theme: d.theme === 'light' || d.theme === 'dark' ? d.theme : null,
     },
@@ -164,7 +193,7 @@ export function parseBackup(text: string): Backup {
 export async function restoreBackup(b: Backup): Promise<ImportResult> {
   const res: ImportResult = { added: 0, updated: 0, skipped: 0 };
 
-  await db.transaction('rw', [db.checklists, db.recipes, db.places, db.catches, db.settings], async () => {
+  await db.transaction('rw', [db.checklists, db.recipes, db.places, db.catches, db.tracks, db.settings], async () => {
     // Стартовые записи (seed-*), которые на этом телефоне не трогали, всегда уступают копии:
     // они созданы при первом запуске и «новее» по времени, хотя правок в них нет.
     const pristine = (cur: { id: string; createdAt: number; updatedAt: number }) =>
@@ -187,6 +216,7 @@ export async function restoreBackup(b: Backup): Promise<ImportResult> {
     await mergeByUpdated<Checklist>(db.checklists, b.data.checklists);
     await mergeByUpdated<Recipe>(db.recipes, b.data.recipes);
     await mergeByUpdated<Catch>(db.catches, b.data.catches);
+    await mergeByUpdated<Track>(db.tracks, b.data.tracks);
 
     for (const p of b.data.places) {
       if (await db.places.get(p.id)) res.skipped++;
