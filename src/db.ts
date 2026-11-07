@@ -30,6 +30,24 @@ export interface Recipe {
   updatedAt: number;
 }
 
+/** Запись в журнале улова. Фото хранится как data URL (WebP/JPEG), чтобы попадать в резервную копию как есть. */
+export interface Catch {
+  id: string;
+  species: string;
+  weightKg: number | null;
+  lengthCm: number | null;
+  caughtAt: number;
+  placeName: string;
+  lat: number | null;
+  lon: number | null;
+  /** Снасти и приманки: «спиннинг», «джиг». */
+  tags: string[];
+  note: string;
+  photo: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Place {
   id: string;
   name: string;
@@ -56,6 +74,7 @@ export const db = new Dexie('fishhike') as Dexie & {
   places: EntityTable<Place, 'id'>;
   settings: EntityTable<Setting, 'key'>;
   forecasts: EntityTable<ForecastCache, 'placeId'>;
+  catches: EntityTable<Catch, 'id'>;
 };
 
 db.version(1).stores({
@@ -64,6 +83,11 @@ db.version(1).stores({
   places: 'id, createdAt',
   settings: 'key',
   forecasts: 'placeId',
+});
+
+// v2: журнал улова.
+db.version(2).stores({
+  catches: 'id, caughtAt, species, updatedAt',
 });
 
 db.on('populate', async (tx) => {

@@ -264,6 +264,32 @@ a { color: var(--accent); }
 .recipe-hero figcaption { padding: 0 20px; font-size: 11.5px; color: var(--muted); }
 .recipe-hero figcaption a { color: inherit; }
 
+/* Журнал улова */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stats b { display: block; font-size: 18px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pills { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
+.pills::-webkit-scrollbar { display: none; }
+.pill { flex: 0 0 auto; min-height: 40px; padding: 0 16px; border-radius: var(--radius-pill); border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; }
+.pill[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.catch-row { display: grid; grid-template-columns: 78px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 6px 14px 6px 6px; background: var(--surface); border-radius: var(--radius-m); box-shadow: var(--card-shadow); color: var(--text); text-decoration: none; }
+.catch-main .title { font-weight: 700; font-size: 16px; }
+.catch-main .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catch-num { display: flex; flex-direction: column; align-items: flex-end; min-width: 34px; font-variant-numeric: tabular-nums; }
+.catch-num span { font-size: 11px; color: var(--muted); }
+.catch-num b { font-size: 16px; font-weight: 700; }
+.catch-photo { width: 78px; height: 56px; border-radius: 11px; overflow: hidden; background: var(--surface-2); color: var(--tag-ink); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.catch-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.catch-photo.large { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: var(--radius-l); }
+.photo-pick { display: flex; flex-direction: column; gap: 10px; }
+.empty-catch { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 28px 20px; color: var(--tag-ink); }
+.empty-catch .title { font-weight: 700; font-size: 18px; color: var(--text); }
+.empty-catch p { margin: 0 0 6px; color: var(--muted); line-height: 1.5; max-width: 34ch; }
+.fab { position: fixed; z-index: 11; right: max(20px, calc(50vw - 260px)); bottom: calc(86px + var(--safe-bottom)); width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px var(--shadow); text-decoration: none; }
+.btn-danger-solid { background: var(--danger); border-color: var(--danger); color: var(--bg); }
+.confirm { display: flex; flex-direction: column; gap: 10px; }
+.last-catch { display: flex; align-items: center; gap: 12px; }
+.last-catch .catch-main { flex: 1 1 auto; min-width: 0; }
+
 /* Состояния */
 .notice { font-size: 13px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line-2); border-radius: var(--radius-s); padding: 10px 12px; }
 .empty { text-align: center; color: var(--muted); padding: 32px 12px; line-height: 1.5; }
@@ -272,9 +298,9 @@ a { color: var(--accent); }
 
 /* Нижняя навигация */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--tabbar-bg); border-top: 1px solid var(--line); padding: 8px 8px calc(10px + var(--safe-bottom)); }
-.tabbar-inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tabbar-inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 52px; justify-content: center; font-size: 11px; font-weight: 500; color: var(--muted); text-decoration: none; border-radius: 14px; }
-.tab svg { box-sizing: content-box; padding: 3px 10px; border-radius: 14px; }
+.tab svg { box-sizing: content-box; padding: 3px 9px; border-radius: 14px; }
 .tab.active { color: var(--text); font-weight: 700; }
 .tab.active svg { background: var(--tag-bg); color: var(--tag-ink); }
 
