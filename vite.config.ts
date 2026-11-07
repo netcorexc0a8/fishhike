@@ -18,8 +18,8 @@ export default defineConfig({
         short_name: 'FishHike',
         description: 'Прогноз клёва, сборы, походные рецепты и места',
         lang: 'ru',
-        theme_color: '#0B1220',
-        background_color: '#0B1220',
+        theme_color: '#1A2A29',
+        background_color: '#1A2A29',
         display: 'standalone',
         orientation: 'portrait',
         start_url: base,
@@ -31,7 +31,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         navigateFallback: 'index.html',
         runtimeCaching: [
           {

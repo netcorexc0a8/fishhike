@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 export const THEME_KEY = 'fishhike-theme';
-const BAR = { dark: '#0B1220', light: '#EEF2EF' } as const;
+const BAR = { dark: '#1A2A29', light: '#F2F0E4' } as const;
 
 const listeners = new Set<() => void>();
 

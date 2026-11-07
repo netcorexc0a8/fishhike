@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { Icon } from '../components/Icon';
+import { recipePhoto } from '../lib/recipePhotos';
 
 export function RecipeDetailScreen() {
   const { id = '' } = useParams();
@@ -18,6 +19,8 @@ export function RecipeDetailScreen() {
     );
   }
 
+  const photo = recipePhoto(recipe.id);
+
   const del = async () => {
     if (!confirm(`Удалить рецепт «${recipe.title}»?`)) return;
     await db.recipes.delete(recipe.id);
@@ -32,10 +35,19 @@ export function RecipeDetailScreen() {
           <Icon name="edit" />
         </Link>
       </div>
+      {photo && (
+        <figure className="recipe-hero">
+          <img src={photo.src} alt={photo.alt} />
+          <figcaption>
+            Фото: <a href={photo.source} target="_blank" rel="noopener noreferrer">{photo.author}</a>, {photo.license}
+          </figcaption>
+        </figure>
+      )}
       <div>
         <h1 className="headline" style={{ fontSize: 30 }}>{recipe.title}</h1>
-        <div className="row muted" style={{ marginTop: 8, fontSize: 14, gap: 6 }}>
-          <Icon name="clock" size={16} /> {recipe.minutes} мин · {recipe.servings} порц.
+        <div className="facts" style={{ marginTop: 8 }}>
+          <span><Icon name="clock" size={16} /> {recipe.minutes} мин</span>
+          <span><Icon name="people" size={16} /> {recipe.servings} порц.</span>
         </div>
       </div>
       {recipe.tags.length > 0 && (

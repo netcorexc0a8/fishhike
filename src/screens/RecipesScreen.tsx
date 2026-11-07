@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { Icon } from '../components/Icon';
+import { recipePhoto } from '../lib/recipePhotos';
 
 export function RecipesScreen() {
   const [q, setQ] = useState('');
@@ -29,17 +30,23 @@ export function RecipesScreen() {
         <input id="rq" className="input" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск: уха, щука, костёр…" />
       </div>
       <div className="list">
-        {shown?.map((r) => (
-          <Link key={r.id} className="list-item" to={`/recipes/${r.id}`}>
-            <div>
-              <div className="title">{r.title}</div>
-              <div className="sub">
-                {r.minutes} мин · {r.servings} порц.{r.builtin ? '' : ' · мой рецепт'}
+        {shown?.map((r) => {
+          const photo = recipePhoto(r.id);
+          return (
+            <Link key={r.id} className={'recipe-card' + (photo ? '' : ' no-photo')} to={`/recipes/${r.id}`}>
+              {photo && <img className="recipe-photo" src={photo.src} alt="" loading="lazy" />}
+              <div className="recipe-body">
+                <div className="title">{r.title}</div>
+                <div className="facts">
+                  <span><Icon name="clock" size={15} /> {r.minutes} мин</span>
+                  <span><Icon name="people" size={15} /> {r.servings} порц.</span>
+                  {!r.builtin && <span className="tag">мой рецепт</span>}
+                </div>
               </div>
-            </div>
-            <Icon name="chevronRight" />
-          </Link>
-        ))}
+              {!photo && <Icon name="chevronRight" />}
+            </Link>
+          );
+        })}
         {shown?.length === 0 && <div className="empty">Ничего не нашлось.</div>}
       </div>
     </main>
