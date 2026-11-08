@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { Icon } from '../components/Icon';
+import { SwipeRow } from '../components/SwipeRow';
 import { recipePhoto } from '../lib/recipePhotos';
 
 export function RecipesScreen() {
@@ -32,8 +33,8 @@ export function RecipesScreen() {
       <div className="list">
         {shown?.map((r) => {
           const photo = recipePhoto(r.id);
-          return (
-            <Link key={r.id} className={'recipe-card' + (photo ? '' : ' no-photo')} to={`/recipes/${r.id}`}>
+          const card = (
+            <Link className={'recipe-card' + (photo ? '' : ' no-photo')} to={`/recipes/${r.id}`}>
               {photo && <img className="recipe-photo" src={photo.src} alt="" loading="lazy" />}
               <div className="recipe-body">
                 <div className="title">{r.title}</div>
@@ -45,6 +46,13 @@ export function RecipesScreen() {
               </div>
               {!photo && <Icon name="chevronRight" />}
             </Link>
+          );
+          // Встроенные рецепты не удаляются — как и на экране рецепта.
+          if (r.builtin) return <Fragment key={r.id}>{card}</Fragment>;
+          return (
+            <SwipeRow key={r.id} label={r.title} radius="l" onDelete={() => db.recipes.delete(r.id)}>
+              {card}
+            </SwipeRow>
           );
         })}
         {shown?.length === 0 && <div className="empty">Ничего не нашлось.</div>}

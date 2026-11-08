@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { Icon } from '../components/Icon';
 import { CatchPhoto } from '../components/CatchPhoto';
+import { SwipeRow } from '../components/SwipeRow';
 import { fmtAmount, fmtCatchDay, fmtSummaryLine, groupByMonth, speciesInUse, summarize } from '../lib/catches';
 
 export function CatchesScreen() {
@@ -69,21 +70,23 @@ export function CatchesScreen() {
                 {m.label} · {fmtSummaryLine(m.summary)}
               </div>
               {m.items.map((c) => (
-                <Link key={c.id} className="catch-row" to={`/catches/${c.id}`}>
-                  <CatchPhoto c={c} />
-                  <div className="catch-main">
-                    <div className="title">{c.species}</div>
-                    <div className="sub">{[fmtCatchDay(c.caughtAt), c.placeName].filter(Boolean).join(' · ')}</div>
-                  </div>
-                  <div className="catch-num">
-                    <span>кг</span>
-                    <b>{c.weightKg != null ? fmtAmount(c.weightKg) : '—'}</b>
-                  </div>
-                  <div className="catch-num">
-                    <span>см</span>
-                    <b>{c.lengthCm != null ? fmtAmount(c.lengthCm) : '—'}</b>
-                  </div>
-                </Link>
+                <SwipeRow key={c.id} label={c.species} onDelete={() => db.catches.delete(c.id)}>
+                  <Link className="catch-row" to={`/catches/${c.id}`}>
+                    <CatchPhoto c={c} />
+                    <div className="catch-main">
+                      <div className="title">{c.species}</div>
+                      <div className="sub">{[fmtCatchDay(c.caughtAt), c.placeName].filter(Boolean).join(' · ')}</div>
+                    </div>
+                    <div className="catch-num">
+                      <span>кг</span>
+                      <b>{c.weightKg != null ? fmtAmount(c.weightKg) : '—'}</b>
+                    </div>
+                    <div className="catch-num">
+                      <span>см</span>
+                      <b>{c.lengthCm != null ? fmtAmount(c.lengthCm) : '—'}</b>
+                    </div>
+                  </Link>
+                </SwipeRow>
               ))}
             </section>
           ))}
