@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, uid, type Checklist } from '../db';
 import { Icon } from '../components/Icon';
+import { SwipeRow } from '../components/SwipeRow';
 import { plural } from '../lib/format';
 
 const isPacked = (l: Checklist) => l.items.length > 0 && l.items.every((i) => i.done);
@@ -17,18 +18,20 @@ export function uniqueTitle(base: string, taken: string[]): string {
 function ListRow({ l }: { l: Checklist }) {
   const done = l.items.filter((i) => i.done).length;
   return (
-    <Link className="list-item" to={`/checklists/${l.id}`}>
-      <div>
-        <div className="title">{l.title}</div>
-        <div className="sub">
-          {l.items.length === 0 ? 'пустой список' : `${done} из ${l.items.length} ${plural(l.items.length, 'пункта', 'пунктов', 'пунктов')}`}
+    <SwipeRow label={l.title} onDelete={() => db.checklists.delete(l.id)}>
+      <Link className="list-item" to={`/checklists/${l.id}`}>
+        <div>
+          <div className="title">{l.title}</div>
+          <div className="sub">
+            {l.items.length === 0 ? 'пустой список' : `${done} из ${l.items.length} ${plural(l.items.length, 'пункта', 'пунктов', 'пунктов')}`}
+          </div>
+          <div className="progress">
+            <i style={{ width: `${l.items.length ? (done / l.items.length) * 100 : 0}%` }} />
+          </div>
         </div>
-        <div className="progress">
-          <i style={{ width: `${l.items.length ? (done / l.items.length) * 100 : 0}%` }} />
-        </div>
-      </div>
-      <Icon name="chevronRight" />
-    </Link>
+        <Icon name="chevronRight" />
+      </Link>
+    </SwipeRow>
   );
 }
 
